@@ -6,9 +6,10 @@ from gradio_client import handle_file
 import json
 import queue
 import asyncio
+import requests
+import time
 
-
-client_hf = C("SPACERUNNER99/main-process")
+client_hf = C("rayesh/process_miniapp")
 bot = Client("640108494:Y4Hr2wDc8hdMjMUZPJ5DqL7j8GfSwJIETGpwMH12")
 
 user_states = {}
@@ -33,6 +34,7 @@ async def handle_sub_paramiters(id, app=""):
 # Function to process the Gradio job in a separate thread
 def process_video(job, progress_queue):
     final_video = None
+    print("test3")
     for update in job:
         progress_msg, video_output = update
         if progress_msg:
@@ -76,8 +78,8 @@ async def answer_message(message):
 دیگه وقتشه محتوای جهانی تولید کنی! 🚀🔥
 🔗 همین حالا امتحان کن!""",
             reply_markup=InlineKeyboard(
-                [("تولید زیرنویس 📜 ", "sub")],
-                [("دوبله فارسی 🎬 ", "dub")],
+                [("د تولید زیرنویس سریع📜 ", "sub_def")],
+                [(" تولید زیرنویس پیشرفته ", "sub_c")],
                 [(" توضیحات بیشتر 📖 ", "toturial")]
             )
         )
@@ -117,182 +119,82 @@ async def handle_callbacks(callback_query):
 
 💡 نکته: ما همیشه در حال بهتر کردن "شهر فرنگ" هستیم، نظرت برامون مهمه!🚀 شروع کن و محتوای حرفه‌ای بساز!""",
                 reply_markup=InlineKeyboard(
-                [("تولید زیرنویس ", "sub")],
-                [("دوبله فارسی", "dub")]
+                [("د تولید زیرنویس سریع📜 ", "sub_def")],
+                [("د تولید زیرنویس پیشرفته ", "sub_c")],
                
             )
         )
             
-        elif callback_query.data == "sub":
+        elif callback_query.data == "sub_def":
             
-            await handle_state(user_id, "awaiting_parametrs", "sub")
+            await handle_state(user_id, "awaiting_document", "sub")
             print(user_states[user_id][0]+"2 in sub send \n")
             #print(user_states[user_id][1]+"2 in sub saved value \n")
             await bot.send_message(
-            chat_id=callback_query.message.chat.id,
-            text="لطفا یک گزینه را از کیبورد انتخاب کنید.",
-            reply_markup=InlineKeyboard(
-                    [("تولید زیرنویس سریع ⚡️", "sub_def")],
-                    [("تولید زیرنویس پیشرفته ⚙️", "sub_custome")]
-                    ),
-          #  reply_markup=home_keyboard
-            )
-        elif callback_query.data == "dub":
-            await handle_state(user_id , "awaiting_parametrs", "dub")
+                chat_id=callback_query.message.chat.id,
+                text="لطفا ویدئوی خود را بار گزاری کنید",
+                )
+        elif callback_query.data == "sub_c":
+            
+            await handle_state(user_id, "awaiting_document", "sub")
+            print(user_states[user_id][0]+"2 in sub send \n")
+            #print(user_states[user_id][1]+"2 in sub saved value \n")
             await bot.send_message(
                 chat_id=callback_query.message.chat.id,
-                text="لطفا یک گزینه را از کیبورد انتخاب کنید.",
-                reply_markup=InlineKeyboard(
-                        [("دوبله سریع ⚡️ ", "dub_def")],
-                        [(" دوبله پیشرفته ⚙️ ", "dub_custome")]
-                    ),
-                #reply_markup=home_keyboard
+                text="لطفا ویدئوی خود را بار گزاری کنید",
                 )
-         #await bot.send_message(
-       #         chat_id=callback_query.message.chat.id,
-       #         text="لطفا ویدیو خود را برای دوبله آپلود کنید ",
-       #         reply_markup=home_keyboard
-       #    )
-    #choose custome or default 
-    elif user_states[user_id][0] == 'awaiting_parametrs':
-        print(user_states[user_id][0]+"3 call back choose dub custome or sub custome \n")
-        if callback_query.data == "dub_custome":
-            user_states[user_id][0] = 'awaiting_send_parametrs'
-            print(user_states[user_id][0]+"4 dub custome choose call back \n")
-            await bot.send_message(
-            chat_id=callback_query.message.chat.id,
-            text="لطفا یک گوینده را از کیبورد انتخاب کنید 🧐.",
-            reply_markup=InlineKeyboard(
-                    [(" 🧔🏻‍♂️ آقا", "he")],
-                    [(" 🧕🏻 خانم", "she")]
-             )
-            ) 
-        elif callback_query.data == "sub_custome":
-            if user_states[user_id][0] == 'awaiting_parametrs':
-                await handle_state(user_id , 'awaiting_send_parametrs') 
-                print(user_states[user_id][0]+"4 sub custome choose call back \n")
-                await bot.send_message(
-                chat_id=callback_query.message.chat.id,
-                text=" رنگ زیرنویس رو انتخاب کن 🧐.",
-                reply_markup=InlineKeyboard(
-                        [(" ⚪️ سفید", "white")],
-                    [(" ⚫️ سیاه", "black")],
-                    [(" 🟡 زرد", "yellow")]
-                    )
-                )
-        elif callback_query.data == "sub_def":
-            print(1)
-            await handle_state(user_id , 'awaiting_document')
-            init_sub_para(user_id, ['yellow'])
-            user_parametrs_sub[user_id].append("arial")
-        elif callback_query.data == "dub_def":
-            print(2)
-            await handle_state(user_id ,  'awaiting_document')
-    #choose color and speakers
-    elif user_states[user_id][0] == 'awaiting_send_parametrs' :
-        if callback_query.data == "he":
-            init_sub_para(user_id, ['he'])
-            print(3)
-            await handle_state(user_id ,  'awaiting_document')
-            print(user_states[user_id][0]+"he choosed\n")
-        elif callback_query.data == "she":
-            print(4)
-            await handle_state(user_id ,  'awaiting_document')
-            init_sub_para(user_id, ['she'])
-            print(user_states[user_id][0]+"she choosed\n")
-        elif callback_query.data=="black":
-            await init_sub_para(user_id,['black'])
-            await handle_state(user_id , 'awaiting_font')
-            print(user_states[user_id][0]+"black choosed\n")
-        elif callback_query.data=="white":
-            init_sub_para(user_id, ['white'])
-            await handle_state(user_id ,  'awaiting_font')
-            print(user_states[user_id][0]+"white choosed\n")
-        elif callback_query.data=="yellow":
-            init_sub_para(user_id, ['yellow'])
-            await handle_state(user_id ,  'awaiting_font')
-            print(user_states[user_id][0]+"yellow choosed\n")
-    #choose font
-    if user_states[user_id][0] == 'awaiting_font':
-        await handle_state(user_id, 'append_font')
-        await bot.send_message(
-            chat_id=callback_query.message.chat.id,
-            text="فونت مورد نظر را انتخاب کنید 📑",
-            reply_markup=InlineKeyboard(
-                [("ب نازنین", "nazanin")],
-                [("ب یکان", "yekan")],
-                [("آریا", "arial")]
-            )
-        )
-    if user_states[user_id][0] == 'append_font': 
-        print(user_states[user_id][0])
-        if callback_query.data == "yekan":
-            await handle_sub_paramiters(user_parametrs_sub[user_id],False,'yekan')
-            await handle_state(user_id , 'awaiting_document')
-            print(user_states[user_id][0]+"yekan choosed\n")
-        elif callback_query.data == "nazanin":
-            await handle_state(user_id, 'awaiting_document')
-            await handle_sub_paramiters(user_parametrs_sub[user_id],False, 'nazanin')
-        elif callback_query.data == "arial":
-            print(6)
-            await handle_state(user_id ,  'awaiting_document')
-            await handle_sub_paramiters(user_parametrs_sub[user_id],False,'arial')
-        elif len(user_parametrs_sub[user_id])==2:
-            print(5)
-            await handle_state(user_id, 'awaiting_document')
-        '''await bot.send_message(
-                chat_id=callback_query.message.chat.id,
-                text="ایا از انتخاب خود مطمین هستید ؟",
-                reply_markup=InlineKeyboard(
-                        [("بلی ", "confirm")],
-                        )
-        )'''
-    if user_states[user_id][0] == 'awaiting_document':         
-        await bot.send_message(
-                chat_id=callback_query.message.chat.id,
-                text="لطفا ویدیو مورد نظر را آپلود کنید"
-        )
-# Handle video uploads
+
 @bot.on_message(video)
 async def handle_document(message):
     user_id = message.author.id
-    if user_states[user_id][0] == 'awaiting_document': 
-        downloading = await message.reply("در صف پردازش . . . 💡")
-        try:
-            file = await bot.get_file(message.video.id)
-            file_path = file.path
-            video_url = f"https://tapi.bale.ai/file/bot1261816176:T4jSrvlJiCfdV5UzUkpywN2HFrzef1IZJs5URAkz/{file_path}"
-            
-            # Submit the job to Gradio
-            if user_states[user_id][1] == "dub":
-                job = client_hf.submit(
-                    url=video_url,
-                    clip_type=user_states[user_id][1],
-                    parameters=user_parametrs_dub[user_id],  # Fixed to use user-specific parameters
-                    api_name="/main",
-                )
-            elif user_states[user_id][1] == "sub":
-                job = client_hf.submit(
-                    url=video_url,
-                    clip_type=user_states[user_id][1],
-                    parameters=f"{user_parametrs_sub[user_id][0]},{user_parametrs_sub[user_id][1]}",
-                    api_name="/main",
-                )
-            
-            # Create a queue for progress updates specific to this request
-            progress_queue = queue.Queue()
-            # Start a task to handle progress updates
-            progress_task = asyncio.create_task(update_progress(downloading, progress_queue))
-            
+    if message.video.duration <= 300:
+        if user_states[user_id][0] == 'awaiting_document':
+            downloading = await message.reply("ویدئو آپلود شد. لطفا برای ادامه فرایند به مینی اپ مراجعه کنید")
+            time.sleep(10)
             try:
-                # Run the blocking job iteration in a separate thread
-                final_video = await asyncio.to_thread(process_video, job, progress_queue)
-                if final_video:
-                    await bot.send_video(
+                file = await bot.get_file(message.video.id)
+                file_path = file.path
+                video_url = f"https://tapi.bale.ai/file/640108494:Y4Hr2wDc8hdMjMUZPJ5DqL7j8GfSwJIETGpwMH12/{file_path}"
+                
+                # Initialize job as None
+                
+
+                print("test")
+                job = client_hf.submit(
+                    url=video_url,
+                    parameters="arial,32,yellow,s,s,s,s",
+                    api_name="/main",
+                )
+                
+                # Create a queue for progress updates specific to this request
+                progress_queue = queue.Queue()
+                # Start a task to handle progress updates
+                progress_task = asyncio.create_task(update_progress(downloading, progress_queue))
+                
+                try:
+                    print("test4")
+                    # Run the blocking job iteration in a separate thread
+                    final_video = await asyncio.to_thread(process_video, job, progress_queue)
+                    if final_video:
+                        await bot.send_video(
+                            chat_id=message.chat.id,
+                            video=final_video["video"],
+                            caption="🎭 شهر فرنگه، از همه رنگه!✨ پردازش ویدیوی شما تموم شد! ✨"
+                        )
+                    await bot.send_message(
                         chat_id=message.chat.id,
-                        video=final_video["video"],
-                        caption="🎭 شهر فرنگه، از همه رنگه!✨ پردازش ویدیوی شما تموم شد! ✨"
+                        text="برای ادامه، یک گزینه را انتخاب کنید:",
+                        reply_markup=InlineKeyboard(
+                            [("تولید زیرنویس 📜 ", "sub")],
+                            [("دوبله فارسی 🎬 ", "dub")]
+                        )
                     )
+                finally:
+                    # Cancel the progress task when done
+                    progress_task.cancel()
+            except Exception as e:
+                await downloading.edit_text(f"❌ خطا در پردازش: {str(e)}")
+                await handle_state(user_id ,  'awaiting_choose')
                 await bot.send_message(
                     chat_id=message.chat.id,
                     text="برای ادامه، یک گزینه را انتخاب کنید:",
@@ -301,18 +203,8 @@ async def handle_document(message):
                         [("دوبله فارسی 🎬 ", "dub")]
                     )
                 )
-            finally:
-                # Cancel the progress task when done
-                progress_task.cancel()
-        except Exception as e:
-            await downloading.edit_text(f"❌ خطا در پردازش: {str(e)}")
-            await handle_state(user_id ,  'awaiting_choose')
-            await bot.send_message(
-                chat_id=message.chat.id,
-                text="برای ادامه، یک گزینه را انتخاب کنید:",
-                reply_markup=InlineKeyboard(
-                    [("تولید زیرنویس 📜 ", "sub")],
-                    [("دوبله فارسی 🎬 ", "dub")]
-                )
-            )
+    else:
+        await message.reply("❌ لطفا ویدئوی زیر ۵ دقیقه ارسال کنید")
+        await handle_state(user_id, 'awaiting_choose')
+
 bot.run()
