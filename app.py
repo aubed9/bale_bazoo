@@ -12,6 +12,7 @@ import time
 client_hf = C("rayesh/process_miniapp")
 bot = Client("640108494:Y4Hr2wDc8hdMjMUZPJ5DqL7j8GfSwJIETGpwMH12")
 
+
 user_states = {}
 user_parametrs_sub={}
 user_parametrs_dub={}
