@@ -9,7 +9,7 @@ import asyncio
 import requests
 import time
 
-client_hf = C("kavehtaheri/main_process")
+client_hf = C("kavehtaheri/main-process")
 bot = Client("640108494:Y4Hr2wDc8hdMjMUZPJ5DqL7j8GfSwJIETGpwMH12")
 
 
