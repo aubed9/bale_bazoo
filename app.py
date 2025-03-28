@@ -211,7 +211,8 @@ async def handle_callbacks(callback_query):
     if user_states[user_id][0] == 'awaiting_document':         
         await bot.send_message(
                 chat_id=callback_query.message.chat.id,
-                text="لطفا ویدیو انگلیسی مورد نظر خود را آپلود کنید"
+                text="""لطفا ویدیو انگلیسی مورد نظر خود را آپلود کنید
+                (ویدیو باید کمتر از 5 دقیقه باشد)"""
         )
 # Handle video uploads
 @bot.on_message(video)
