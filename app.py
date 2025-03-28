@@ -6,8 +6,9 @@ from gradio_client import handle_file
 import json
 
 
-client_hf = C("https://rayesh-auto-content.liara.run/")
+client_hf = C("rayesh/process_miniapp")
 bot = Client("640108494:Y4Hr2wDc8hdMjMUZPJ5DqL7j8GfSwJIETGpwMH12")
+
 
 user_states = {}
 user_parametrs_sub={}
