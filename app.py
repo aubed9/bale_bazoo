@@ -59,7 +59,7 @@ async def handle_callbacks(callback_query):
         )
     print('callback_query')
     #print(user_states[user_id][0]+"2\n")
-    if user_states[user_id][0] == 'awaiting_choose' or 'awaiting_response' :
+    if user_states[user_id][0] == 'awaiting_choose':
         print("callback choose")
         if callback_query.data == "toturial":
             await bot.send_message(
@@ -93,7 +93,7 @@ async def handle_callbacks(callback_query):
             text="لطفا یک گزینه را از کیبورد انتخاب کنید.",
             reply_markup=InlineKeyboard(
                     [("تولید زیرنویس سریع ⚡️", "sub_def")],
-                    [("(به زودی)تولید زیرنویس پیشرفته ⚙️", "b")]
+                    [("(به زودی)تولید زیرنویس پیشرفته ⚙️", "sub_custome")]
                     ),
           #  reply_markup=home_keyboard
             )
@@ -267,7 +267,7 @@ async def handle_document(message):
                     video=final_video["video"],
                     caption="🎭 شهر فرنگه، از همه رنگه!✨ پردازش ویدیوی شما تموم شد! ✨"
                 )
-                user_states[user_id][0] = 'awaiting_response'
+                user_states[user_id][0] = 'awaiting_choose'
             await bot.send_message(
                 chat_id=message.chat.id,
                 text="برای ادامه، یک گزینه را انتخاب کنید:",
