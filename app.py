@@ -25,6 +25,7 @@ async def answer_message(message):
     state = user_states.get(user_id)
     print("on message")
 
+    
     # Handle "Home" button
     if message.text == "خانه" or message.text =="/start":
         user_states[user_id] = ['awaiting_choose']
