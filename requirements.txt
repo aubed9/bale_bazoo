@@ -1,2 +1,3 @@
 Balethon
 gradio-client
+aiohttp
