@@ -216,75 +216,91 @@ async def handle_callbacks(callback_query):
 @bot.on_message(video)
 async def handle_document(message):
     user_id = message.author.id
+    if message.video.duration <= 300:
+        if user_states[user_id][0] == 'awaiting_document': 
+            downloading = await message.reply("در صف پردازش . . . 💡")
+            try:
+                
+                # Get the file details from the bot using your usual method.
+                file = await bot.get_file(message.video.id)
+                file_path = file.path
+                # Prepare the file URL; adjust it to your token and file path.
+                video_url = f"https://tapi.bale.ai/file/bot1261816176:T4jSrvlJiCfdV5UzUkpywN2HFrzef1IZJs5URAkz/{file_path}",
+                
+                # Send an initial progress message so the user sees something.
+                #mood
+                # Set up your payload; note that you might need to indicate that you want a streaming response.
     
-    if user_states[user_id][0] == 'awaiting_document': 
-        downloading = await message.reply("در صف پردازش . . . 💡")
-        try:
-            
-            # Get the file details from the bot using your usual method.
-            file = await bot.get_file(message.video.id)
-            file_path = file.path
-            # Prepare the file URL; adjust it to your token and file path.
-            video_url = f"https://tapi.bale.ai/file/bot1261816176:T4jSrvlJiCfdV5UzUkpywN2HFrzef1IZJs5URAkz/{file_path}",
-            
-            # Send an initial progress message so the user sees something.
-            #mood
-            # Set up your payload; note that you might need to indicate that you want a streaming response.
+                if user_states[user_id][1]=="dub":
+                        
+                    file = await bot.get_file(message.video.id)
+                    file_path = file.path
+                    job = client_hf.submit(
+                        url=f"https://tapi.bale.ai/file/bot1261816176:T4jSrvlJiCfdV5UzUkpywN2HFrzef1IZJs5URAkz/{file_path}",
+                        clip_type=user_states[user_id][1],
+                        parameters=user_parametrs_dub,
+                        api_name="/main",
+                    )
+                elif user_states[user_id][1]=="sub":
+                        
+                    try:
+                        file = await bot.get_file(message.video.id)
+                        file_path = file.path
+                        video_url = f"https://tapi.bale.ai/file/640108494:Y4Hr2wDc8hdMjMUZPJ5DqL7j8GfSwJIETGpwMH12/{file_path}"
+                        
+                        headers = {
+                            'Content-Type': 'application/json',
+                        }
+                        print(video_url)
+                        payload = {
+                            "bale_user_id": user_id,
+                            "username": message.author.username,
+                            "chat_id": str(message.chat.id),
+                            "url": video_url,
+                            "video_name": message.document.name,
+                        }
+                        
+                        try:
+                            # Changed to use aiohttp instead of requests
+                            async with aiohttp.ClientSession() as session:
+                                async with session.post(
+                                    'https://miniapp-quart.liara.run/save_video',
+                                    headers=headers,
+                                    json=payload,  # Automatically serializes to JSON
+                                    timeout=30
+                                ) as response:
+                                    # Handle response
+                                    if response.status == 201:
+                                        await downloading.edit_text("✅ ویدئو با موفقیت ذخیره شد! لطفا به مینی اپ مراجعه کنید")
+                                    elif 400 <= response.status < 500:
+                                        error_data = await response.json()  # Note the await here
+                                        await downloading.edit_text(f"❌ خطا: {error_data.get('message', 'ورودی نادرست')}")
+                                    else:
+                                        await downloading.edit_text("⏳ خطای سرور، لطفا بعدا تلاش کنید")
+        
+                        # Changed exception handling for aiohttp
+                        except aiohttp.ClientError as e:
+                            print(f"Connection Error: {str(e)}")
+                            await downloading.edit_text("⏳ مشکل در ارتباط با سرور، لطفا مجددا امتحان کنید")
+                        except Exception as e:
+                            print(f"General Error: {str(e)}")
+                            await downloading.edit_text("❌ خطای پردازش ویدئو")
+                            await handle_state(user_id, 'awaiting_choose')
+        
+                    except Exception as e:
+                        print(f"General Error: {str(e)}")
+                        await downloading.edit_text("❌ خطای پردازش ویدئو")
+                        await handle_state(user_id, 'awaiting_choose')
+                        await bot.send_message(
+                            chat_id=message.chat.id,
+                            text="برای ادامه، یک گزینه را انتخاب کنید:",
+                         reply_markup=InlineKeyboard(
+                            [("تولید زیرنویس 📜 ", "sub")]
+                        )
+                    )
+                    reply_markup=home_keyboard
+    else:
+        await message.reply("❌ لطفا ویدئوی زیر ۵ دقیقه ارسال کنید")
+        await handle_state(user_id, 'awaiting_choose')
 
-            if user_states[user_id][1]=="dub":
-                    
-                file = await bot.get_file(message.video.id)
-                file_path = file.path
-                job = client_hf.submit(
-                    url=f"https://tapi.bale.ai/file/bot1261816176:T4jSrvlJiCfdV5UzUkpywN2HFrzef1IZJs5URAkz/{file_path}",
-                    clip_type=user_states[user_id][1],
-                    parameters=user_parametrs_dub,
-                    api_name="/main",
-                )
-            elif user_states[user_id][1]=="sub":
-                    
-                file = await bot.get_file(message.video.id)
-                file_path = file.path
-                job = client_hf.submit(
-                    url=f"https://tapi.bale.ai/file/bot1261816176:T4jSrvlJiCfdV5UzUkpywN2HFrzef1IZJs5URAkz/{file_path}",
-                    clip_type=user_states[user_id][1],
-                    parameters=f"{user_parametrs_sub[user_id][0]},{user_parametrs_sub[user_id][1]}",
-                    api_name="/main",
-                )
-            print(job.status())
-            final_video = None
-            for update in job:
-                progress_msg, video_output = update
-                if progress_msg:
-                    await downloading.edit_text(f"وضعیت: {progress_msg}")
-                if video_output is not None:
-                    final_video = video_output
-            print(final_video)
-            if final_video:
-                await bot.send_video(
-                    chat_id=message.chat.id,
-                    video=final_video["video"],
-                    caption="🎭 شهر فرنگه، از همه رنگه!✨ پردازش ویدیوی شما تموم شد! ✨"
-                )
-                user_states[user_id][0] = 'awaiting_choose'
-            await bot.send_message(
-                chat_id=message.chat.id,
-                text="برای ادامه، یک گزینه را انتخاب کنید:",
-                reply_markup=InlineKeyboard(
-                [("تولید زیرنویس 📜 ", "sub")]
-              
-            )
-        )
-            reply_markup=home_keyboard
-        except Exception as e:
-            await downloading.edit_text(f"❌ خطا در پردازش: {str(e)}")
-            user_states[user_id][0] = 'awaiting_choose'
-            await bot.send_message(
-                chat_id=message.chat.id,
-                text="برای ادامه، یک گزینه را انتخاب کنید:",
-             reply_markup=InlineKeyboard(
-                [("تولید زیرنویس 📜 ", "sub")]
-            )
-        )
-            reply_markup=home_keyboard
 bot.run()
