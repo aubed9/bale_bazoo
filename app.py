@@ -4,7 +4,10 @@ from balethon.objects import InlineKeyboard, ReplyKeyboard
 from gradio_client import Client as C
 from gradio_client import handle_file
 import json
-
+import queue
+import asyncio
+import requests
+import aiohttp
 
 #client_hf = C("rayesh/process_miniapp")
 bot = Client("640108494:Y4Hr2wDc8hdMjMUZPJ5DqL7j8GfSwJIETGpwMH12")
