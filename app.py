@@ -6,7 +6,7 @@ from gradio_client import handle_file
 import json
 
 
-client_hf = C("rayesh/process_miniapp")
+#client_hf = C("rayesh/process_miniapp")
 bot = Client("640108494:Y4Hr2wDc8hdMjMUZPJ5DqL7j8GfSwJIETGpwMH12")
 
 
@@ -232,15 +232,15 @@ async def handle_document(message):
                 # Set up your payload; note that you might need to indicate that you want a streaming response.
     
                 if user_states[user_id][1]=="dub":
-                        
-                    file = await bot.get_file(message.video.id)
+                    pass
+                    '''file = await bot.get_file(message.video.id)
                     file_path = file.path
                     job = client_hf.submit(
                         url=f"https://tapi.bale.ai/file/bot1261816176:T4jSrvlJiCfdV5UzUkpywN2HFrzef1IZJs5URAkz/{file_path}",
                         clip_type=user_states[user_id][1],
                         parameters=user_parametrs_dub,
                         api_name="/main",
-                    )
+                    )'''
                 elif user_states[user_id][1]=="sub":
                         
                     try:
