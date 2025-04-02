@@ -12,7 +12,7 @@ import aiohttp
 
 
 #client_hf = C("SPACERUNNER99/main-process")
-bot = Client("640108494:Y4Hr2wDc8hdMjMUZPJ5DqL7j8GfSwJIETGpwMH12")
+bot = Client("1261816176:T4jSrvlJiCfdV5UzUkpywN2HFrzef1IZJs5URAkz")
 
 user_states = {}
 user_parametrs_sub={}
@@ -121,7 +121,7 @@ async def handle_callbacks(callback_query):
             )
         )
             
-        elif callback_query.data == "sub_def":
+        elif callback_query.data == "sub":
             
             await handle_state(user_id, "awaiting_document", "sub")
             print(user_states[user_id][0]+"2 in sub send \n")
@@ -131,7 +131,7 @@ async def handle_callbacks(callback_query):
                 text="""لطفا ویدیو انگلیسی مورد نظر خود را آپلود کنید
                 (ویدیو باید کمتر از 5 دقیقه باشد)""",
                 )
-        elif callback_query.data == "sub_c":
+        elif callback_query.data == "sub":
             
             await handle_state(user_id, "awaiting_document", "sub")
             print(user_states[user_id][0]+"2 in sub send \n")
